@@ -1,6 +1,7 @@
+import { useCallback } from "react";
+import { useRef } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
 function App() {
@@ -8,6 +9,40 @@ function App() {
   const [numberAllowed, setNumberAllowed] = useState(false);
   const [charAllowed, setCharAllowed] = useState(false);
   const [length, setLength] = useState(8);
+
+
+  const generatePassword = useCallback(() => {
+    let pass = ''
+    let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let num = "0123456789";
+    let spc = "!@#$%^&*()_+";
+
+    if (numberAllowed) {
+      str += num;
+    }
+    if (charAllowed) {
+      str += spc;
+    }
+
+    for (let i = 0; i < length; i++) {
+      pass += str.charAt(Math.floor(Math.random() * str.length));
+    }
+    setPassword(pass);
+   
+  }, [length, numberAllowed, charAllowed])
+
+  useEffect(() =>{
+    generatePassword();
+  }, [length, numberAllowed, charAllowed])
+
+  const copyToClipboard = () => {
+    window.navigator.clipboard.writeText(password);
+    alert("Copied to clipboard!");
+    passRef.current.select();
+  }
+
+  const passRef = useRef(null)
+
 
   return (
     <div className="bg-gray-800 w-full max-w-screen-md mx-auto shadow-md text-orange-500 px-4 py-3 rounded-lg my-8">
@@ -17,11 +52,12 @@ function App() {
           type="text"
           value={password}
           placeholder="password"
+          ref={passRef}
           readOnly
           className="outline-none w-full py-1 px-3"
         />
 
-        <button className="bg-blue-700 text-white px-3 py-0.5 outline-none shrink-0 ">
+        <button onClick={copyToClipboard} className="bg-blue-700 text-white px-3 py-0.5 outline-none shrink-0 ">
           copy
         </button>
       </div>
